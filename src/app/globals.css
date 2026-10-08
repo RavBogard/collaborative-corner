@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --paper: #fbf6ec;
+  --paper-2: #f4ead8;
+  --card: #fffdf8;
+  --ink: #2a2118;
+  --ink-soft: #6b5b4b;
+  --line: #e6d8c0;
+  --pomegranate: #9c2f3c;
+  --pomegranate-ink: #7a1f2b;
+  --gold: #c08a2a;
+
+  /* category hues */
+  --c-holiday: #b7832a;
+  --c-public-school: #3f5f8a;
+  --c-day-school: #2f7d74;
+  --c-institution: #9c2f3c;
+  --c-synagogue: #6d4c8a;
+  --c-community-sheet: #c25e2e;
+
+  /* heat ramp: open → packed */
+  --heat-0: #fffdf8;
+  --heat-1: #fbf0d9;
+  --heat-2: #f6dcaa;
+  --heat-3: #eeb878;
+  --heat-4: #dd8a5e;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-pomegranate: var(--pomegranate);
+  --color-pomegranate-ink: var(--pomegranate-ink);
+  --color-gold: var(--gold);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+/* subtle paper texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(120, 90, 50, 0.05) 1px, transparent 1px);
+  background-size: 6px 6px;
+  z-index: -1;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pomegranate);
+  outline-offset: 2px;
 }

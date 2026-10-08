@@ -5,13 +5,13 @@ import type { Dataset } from "./types";
 
 const BLOB_PATH = "dataset/events.json";
 const LOCAL_PATH = path.join(process.cwd(), ".data", "events.json");
-const useBlob = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const blobEnabled = () => Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 export const EMPTY: Dataset = { generatedAt: "", events: [], status: [] };
 
 export async function loadDataset(): Promise<Dataset> {
   try {
-    if (useBlob()) {
+    if (blobEnabled()) {
       const res = await get(BLOB_PATH, { access: "private", useCache: false });
       if (!res?.stream) return EMPTY;
       return (await new Response(res.stream).json()) as Dataset;
@@ -24,7 +24,7 @@ export async function loadDataset(): Promise<Dataset> {
 
 export async function saveDataset(data: Dataset): Promise<void> {
   const body = JSON.stringify(data);
-  if (useBlob()) {
+  if (blobEnabled()) {
     await put(BLOB_PATH, body, {
       access: "private",
       contentType: "application/json",
