@@ -1,6 +1,7 @@
 "use client";
 
 import { addDays } from "@/lib/dates";
+import { schoolsOut, type Heat } from "@/lib/analysis";
 import type { CalEvent } from "@/lib/types";
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Shabbat"];
@@ -37,7 +38,7 @@ export function MonthGrid({
   onMonth: (m: string) => void;
   today: string;
   days: Map<string, CalEvent[]>;
-  heat: Map<string, 0 | 1 | 2 | 3 | 4>;
+  heat: Map<string, Heat>;
   selection: { start: string; end: string };
   onSelect: (s: { start: string; end: string }) => void;
   categoryOf: (e: CalEvent) => string;
@@ -79,7 +80,7 @@ export function MonthGrid({
           const level = heat.get(d) ?? 0;
           const selected = d >= selection.start && d <= selection.end;
           const holiday = list.find((e) => categoryOf(e) === "holiday" && e.importance === "major");
-          const closures = list.filter((e) => e.tags?.schoolClosure).length;
+          const closures = schoolsOut(list);
           const others = list.filter((e) => categoryOf(e) !== "holiday" && !e.tags?.schoolClosure);
           return (
             <button
@@ -116,7 +117,7 @@ export function MonthGrid({
               {closures > 0 && (
                 <div className="mt-0.5 truncate text-[10px] sm:text-xs text-[color:var(--c-public-school)]">
                   <span className="sm:hidden">🏫 {closures}</span>
-                  <span className="hidden sm:inline">🏫 {closures} school{closures > 1 ? "s" : ""} out</span>
+                  <span className="hidden sm:inline">🏫 {closures} school{closures > 1 ? "s" : ""} off/early</span>
                 </div>
               )}
               <div className="mt-1 hidden sm:flex flex-col gap-0.5">

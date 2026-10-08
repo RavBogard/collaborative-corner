@@ -1,0 +1,638 @@
+[
+  {
+    "id": "jewish-federation-greater-atlanta",
+    "name": "Jewish Federation of Greater Atlanta",
+    "category": "institution",
+    "area": "Midtown / metro",
+    "website": "https://jewishatlanta.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://jewishatlanta.org/events/", "verified": true, "note": "Event grid; calendar view at /events/?calendar. Custom WordPress (Loyal); no ICS, events are not exposed in wp-json." },
+      { "type": "webpage", "url": "https://jewishatlanta.org/events/feed/", "verified": true, "note": "RSS 2.0 of recent event posts (10 items). Gives post dates, not event dates, so use it only to discover new event URLs." }
+    ],
+    "notes": "Also hosts PJ Library Atlanta and JBaby events."
+  },
+  {
+    "id": "marcus-jcc-atlanta",
+    "name": "Marcus Jewish Community Center of Atlanta (MJCCA)",
+    "category": "institution",
+    "area": "Dunwoody",
+    "website": "https://www.atlantajcc.org",
+    "fetch": [
+      { "type": "ical", "url": "https://www.atlantajcc.org/calendar/?ical=1", "verified": true, "note": "The Events Calendar ICS. It returns only the next ~30 events per request. Month view /calendar/month/2026-11/?ical=1 also works (verified)." },
+      { "type": "webpage", "url": "https://www.atlantajcc.org/wp-json/tribe/events/v1/events?per_page=50&start_date=2026-10-08", "verified": true, "note": "Events Calendar REST API (JSON, paginated, about 24k total events including classes). Best for full coverage; filter out recurring classes and fitness sessions." }
+    ],
+    "notes": "Very high volume. Most events are recurring classes, so filter by category (book festival, arts, community-wide)."
+  },
+  {
+    "id": "jfcs-atlanta",
+    "name": "Jewish Family & Career Services (JF&CS)",
+    "category": "institution",
+    "area": "Dunwoody / metro",
+    "website": "https://jfcsatl.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://jfcsatl.org/calendar", "verified": true, "note": "Craft CMS calendar with event URLs like /calendar/event/{id}/{yyyy}/{mm}/{dd}. Sub-calendars include /calendar/community-events and /calendar/aviv-older-adults. No ICS link found." }
+    ],
+    "notes": "Scraping /calendar/community-events is probably the most relevant."
+  },
+  {
+    "id": "hillels-of-georgia",
+    "name": "Hillels of Georgia",
+    "category": "institution",
+    "area": "metro (Emory, GSU, KSU, GCSU campuses)",
+    "website": "https://www.hillelsofgeorgia.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.hillelsofgeorgia.org/news-events", "verified": true, "note": "Wix site using Wix Events. Per-campus pages: /emory-events, /gsu-events, /ksu-events, /gcsu-events. No ICS feed." }
+    ],
+    "notes": "Wix renders server-side, so the HTML is scrapeable but heavy (~1.2MB)."
+  },
+  {
+    "id": "ajc-atlanta",
+    "name": "AJC Atlanta (American Jewish Committee)",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://www.ajc.org/atlanta",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.ajc.org/events/atlanta", "verified": true, "note": "Regional events listing. No ICS." }
+    ],
+    "notes": "Major events (for example the National Human Relations Award) link out to donate.ajc.org."
+  },
+  {
+    "id": "adl-southeast",
+    "name": "ADL Southeast",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://southeast.adl.org/",
+    "fetch": [
+      { "type": "webpage", "url": "https://southeast.adl.org/", "verified": true, "note": "Regional site (adl.org/southeast returns 404). No events feed found." },
+      { "type": "webpage", "url": "https://www.adl.org/take-action/attend-event", "verified": true, "note": "National events page; would need filtering for Atlanta/Southeast." }
+    ],
+    "notes": "Few public events. Facebook @ADLSoutheast may be more current. Low yield."
+  },
+  {
+    "id": "breman-museum",
+    "name": "The Breman Museum",
+    "category": "institution",
+    "area": "Midtown",
+    "website": "https://thebreman.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://thebreman.org/events-current/", "verified": true, "note": "WordPress with JetEngine listing; event pages at /events/{slug}/. ?ical=1 does not work." }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "the-dupree",
+    "name": "The Dupree",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://thedupree.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://thedupree.org/", "verified": true, "note": "Homepage lists upcoming programs, each linking to eventcreate.com/e/{slug}. There is no /events page (404)." }
+    ],
+    "notes": "Event details and dates are on eventcreate.com pages."
+  },
+  {
+    "id": "atlanta-jewish-film-festival",
+    "name": "Atlanta Jewish Film Festival (AJFF)",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://ajff.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://ajff.org/", "verified": false, "note": "Client-side React app. curl and WebFetch get an empty shell, so it needs a headless browser or its backing API." }
+    ],
+    "notes": "The main festival runs in late January and February; year-round screenings are sporadic. Consider hand-entering festival dates once a year."
+  },
+  {
+    "id": "hadassah-greater-atlanta",
+    "name": "Hadassah Greater Atlanta",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://www.hadassah.org/chapter/greater-atlanta",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.hadassah.org/chapter/greater-atlanta", "verified": true, "note": "Chapter page with an #events section. The regional list is at hadassah.org/region/southeastern." }
+    ],
+    "notes": "Listings are often stale. Facebook (hadassahgreateratlanta) is more active."
+  },
+  {
+    "id": "jewish-womens-fund-atlanta",
+    "name": "Jewish Women's Fund of Atlanta (JWFA)",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://jwfatlanta.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://jwfatlanta.org/engage/join-an-event/", "verified": true, "note": "WordPress page with no ICS." }
+    ],
+    "notes": "jewishwomensfund.org does not resolve; the correct domain is jwfatlanta.org."
+  },
+  {
+    "id": "jewish-womens-connection-atlanta",
+    "name": "Jewish Women's Connection of Atlanta (JWCA)",
+    "category": "institution",
+    "area": "metro",
+    "website": "",
+    "fetch": [],
+    "notes": "Runs under the Atlanta Scholars Kollel. jwca.org is a parked domain (redirects to /lander) and no official site was found. Events are probably promoted by email or social media only."
+  },
+  {
+    "id": "israeli-consulate-southeast",
+    "name": "Consulate General of Israel to the Southeast",
+    "category": "institution",
+    "area": "Midtown",
+    "website": "https://embassies.gov.il/atlanta/en",
+    "fetch": [
+      { "type": "webpage", "url": "https://embassies.gov.il/atlanta/en/news", "verified": true, "note": "News and announcements only. There is no events calendar." }
+    ],
+    "notes": "Public events are rare and usually co-hosted (Federation, synagogues). Global Atlanta's events calendar has an 'israel' category, but its ?ical=1 is blocked for non-browser clients. Low yield."
+  },
+  {
+    "id": "atlanta-rabbinical-association",
+    "name": "Atlanta Rabbinical Association",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://atlrabbis.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://atlrabbis.org/public-events/", "verified": true, "note": "WordPress page with no ICS (?ical=1 not supported). There is also a /member-only-events/ page." }
+    ],
+    "notes": "atlantarabbis.org does not resolve; the correct domain is atlrabbis.org."
+  },
+  {
+    "id": "pj-library-atlanta",
+    "name": "PJ Library Atlanta",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://jewishatlanta.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://jewishatlanta.org/events/", "verified": true, "note": "PJ Library events are posted on the Federation events page (same source as jewish-federation-greater-atlanta)." }
+    ],
+    "notes": "Run by the Jewish Federation of Greater Atlanta. pjlibrary.org/atlanta just redirects to enrollment. Consider merging with the Federation source and tagging PJ/JBaby events."
+  },
+  {
+    "id": "jnf-atlanta",
+    "name": "Jewish National Fund-USA Atlanta (Southeast)",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://www.jnf.org/jnf-in-your-area/southeast",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.jnf.org/jnf-in-your-area/southeast", "verified": true, "note": "Regional page linking to events.jnf.org/e/{slug} (for example /e/hirsch, the Breakfast for Dinner gala). No ICS." }
+    ],
+    "notes": "Only a few large events per year."
+  },
+  {
+    "id": "chabad-of-georgia",
+    "name": "Chabad of Georgia",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://www.chabadga.com",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.chabadga.com/newsandevents", "verified": true, "note": "Wix site, mostly news. No ICS." }
+    ],
+    "notes": "Local Chabad centers (Intown, Dunwoody, Cobb and others) run their own chabad.org-platform sites, which usually expose calendars. Add them as separate sources if needed."
+  },
+  {
+    "id": "atlanta-jewish-times-connector",
+    "name": "Atlanta Jewish Times / Atlanta Jewish Connector",
+    "category": "institution",
+    "area": "metro",
+    "website": "https://www.atlantajewishconnector.com",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.atlantajewishconnector.com/events/", "verified": true, "note": "Community calendar run by AJT (3,000+ events, loads more via 'Load More'). Verified with WebFetch. Cloudflare returns 403 to curl. No ICS (?ical=1 returns HTML)." }
+    ],
+    "notes": "Cloudflare bot challenge: the weekly job needs a real browser (Playwright) or this source has to be skipped. An aggregator of the other sources, so use it for cross-checking or discovery rather than as a primary feed."
+  },
+
+  {
+    "id": "ahavath-achim-synagogue",
+    "name": "Ahavath Achim Synagogue",
+    "category": "synagogue",
+    "area": "Buckhead",
+    "website": "https://aasynagogue.org",
+    "fetch": [
+      { "type": "ical", "url": "https://aasynagogue.org/?post_type=tribe_events&ical=1&eventDisplay=list", "verified": true, "note": "The Events Calendar ICS (~30 upcoming events). Verified with WebFetch. Cloudflare challenge returns 403 to plain curl." },
+      { "type": "webpage", "url": "https://aasynagogue.org/events/", "verified": true, "note": "HTML calendar (verified with WebFetch)." }
+    ],
+    "notes": "Cloudflare blocks non-browser clients, so the fetch job may need a headless browser. Includes recurring minyanim and candle-lighting entries; filter those out."
+  },
+  {
+    "id": "the-temple",
+    "name": "The Temple (Hebrew Benevolent Congregation)",
+    "category": "synagogue",
+    "area": "Midtown",
+    "website": "https://www.the-temple.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.the-temple.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export, 6 months ahead (~615 rows). Columns: Type,Start,End,Name,Calendar,Location,Description,Hebrew Date." },
+      { "type": "webpage", "url": "https://www.the-temple.org/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": "ShulCloud returns 406 unless the request sends a browser-like Accept header. Drop rows where Type='Schedule Rule' (recurring services)."
+  },
+  {
+    "id": "congregation-or-veshalom",
+    "name": "Congregation Or VeShalom",
+    "category": "synagogue",
+    "area": "Brookhaven",
+    "website": "https://www.orveshalom.org",
+    "fetch": [
+      { "type": "ical", "url": "https://www.orveshalom.org/events/?ical=1", "verified": true, "note": "The Events Calendar ICS (~30 upcoming)." },
+      { "type": "webpage", "url": "https://www.orveshalom.org/wp-json/tribe/events/v1/events?per_page=50", "verified": true, "note": "REST JSON (1,318 total), paginated." }
+    ],
+    "notes": "Also has a ShulCloud instance at ovs.shulcloud.com (membership)."
+  },
+  {
+    "id": "congregation-etz-chaim",
+    "name": "Congregation Etz Chaim",
+    "category": "synagogue",
+    "area": "East Cobb",
+    "website": "https://www.etzchaim.net",
+    "fetch": [
+      { "type": "csv", "url": "https://etzchaimatl.shulcloud.com/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~770 rows over 6 months)." },
+      { "type": "webpage", "url": "https://etzchaimatl.shulcloud.com/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": "The main site is WordPress, but its calendar lives on ShulCloud."
+  },
+  {
+    "id": "congregation-beth-jacob",
+    "name": "Congregation Beth Jacob",
+    "category": "synagogue",
+    "area": "Toco Hills",
+    "website": "https://www.bethjacobatlanta.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.bethjacobatlanta.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~1,550 rows, mostly minyan schedule rules)." },
+      { "type": "webpage", "url": "https://www.bethjacobatlanta.org/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": "Orthodox. Very heavy on daily minyan rows; filter Type='Schedule Rule'."
+  },
+  {
+    "id": "congregation-bnai-torah",
+    "name": "Congregation B'nai Torah",
+    "category": "synagogue",
+    "area": "Sandy Springs",
+    "website": "https://www.bnaitorah.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.bnaitorah.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~660 rows)." },
+      { "type": "webpage", "url": "https://www.bnaitorah.org/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "temple-sinai-sandy-springs",
+    "name": "Temple Sinai",
+    "category": "synagogue",
+    "area": "Sandy Springs",
+    "website": "https://templesinaiatlanta.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://templesinaiatlanta.my.site.com/s/calendar?sort=Asc", "verified": false, "note": "Salesforce Experience Cloud calendar (linked from the homepage). Likely rendered client-side, so it needs a headless browser." },
+      { "type": "webpage", "url": "https://templesinaiatlanta.org/", "verified": true, "note": "Homepage lists upcoming events linking to templesinaiatlanta.my.site.com/s/event/{id}/" }
+    ],
+    "notes": "templesinai-atl.org does not resolve; the correct domain is templesinaiatlanta.org. No ICS found."
+  },
+  {
+    "id": "congregation-shearith-israel",
+    "name": "Congregation Shearith Israel",
+    "category": "synagogue",
+    "area": "Morningside / Intown",
+    "website": "https://www.shearithisrael.com",
+    "fetch": [
+      { "type": "csv", "url": "https://www.shearithisrael.com/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~640 rows)." },
+      { "type": "webpage", "url": "https://www.shearithisrael.com/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "temple-beth-tikvah",
+    "name": "Temple Beth Tikvah",
+    "category": "synagogue",
+    "area": "Roswell",
+    "website": "https://www.bethtikvah.com",
+    "fetch": [
+      { "type": "csv", "url": "https://www.bethtikvah.com/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~230 rows)." },
+      { "type": "webpage", "url": "https://www.bethtikvah.com/calendar", "verified": false, "note": "ShulCloud HTML calendar (standard path)" }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "temple-kehillat-chaim",
+    "name": "Temple Kehillat Chaim",
+    "category": "synagogue",
+    "area": "Roswell",
+    "website": "https://www.kehillatchaim.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.kehillatchaim.org/upcoming-events", "verified": true, "note": "Wix Events listing. No ICS." },
+      { "type": "webpage", "url": "https://www.kehillatchaim.org/calendar", "verified": true, "note": "Wix page with a Boomtech calendar widget (client-side)." }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "congregation-dor-tamid",
+    "name": "Congregation Dor Tamid",
+    "category": "synagogue",
+    "area": "Johns Creek",
+    "website": "https://www.dortamid.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.dortamid.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~280 rows)." },
+      { "type": "webpage", "url": "https://www.dortamid.org/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": ""
+  },
+  {
+    "id": "temple-emanu-el-atlanta",
+    "name": "Temple Emanu-El",
+    "category": "synagogue",
+    "area": "Sandy Springs",
+    "website": "https://templeemanuelatlanta.org",
+    "fetch": [
+      { "type": "csv", "url": "https://templeemanuelatlanta.shulcloud.com/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~190 rows)." },
+      { "type": "ical", "url": "https://templeemanuelatlanta.org/calendar/?ical=1", "verified": false, "note": "Linked from the site, but it returned an empty body (0 bytes) twice." }
+    ],
+    "notes": "WordPress front end. Events actually live on templeemanuelatlanta.shulcloud.com."
+  },
+  {
+    "id": "congregation-bet-haverim",
+    "name": "Congregation Bet Haverim",
+    "category": "synagogue",
+    "area": "Druid Hills / Intown",
+    "website": "https://www.congregationbethaverim.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.congregationbethaverim.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~415 rows)." },
+      { "type": "webpage", "url": "https://www.congregationbethaverim.org/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": "cbhatlanta.org redirects here."
+  },
+  {
+    "id": "congregation-ariel",
+    "name": "Congregation Ariel",
+    "category": "synagogue",
+    "area": "Dunwoody",
+    "website": "https://www.congariel.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.congariel.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~670 rows, mostly minyanim)." },
+      { "type": "webpage", "url": "https://www.congariel.org/calendar", "verified": false, "note": "ShulCloud HTML calendar (standard path)" }
+    ],
+    "notes": "Orthodox. Domain is congariel.org (congregationariel.org does not resolve)."
+  },
+  {
+    "id": "congregation-ohr-hatorah",
+    "name": "Congregation Ohr HaTorah (formerly Young Israel of Toco Hills)",
+    "category": "synagogue",
+    "area": "Toco Hills",
+    "website": "https://www.ohrhatorahatl.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.ohrhatorahatl.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~445 rows)." },
+      { "type": "webpage", "url": "https://www.ohrhatorahatl.org/calendar", "verified": true, "note": "ShulCloud HTML calendar" }
+    ],
+    "notes": "Left the Young Israel movement in 2019. yith.org redirects to ohrhatorahatl.org. Don't confuse it with ohrhatorah.org, a different (Wix) congregation."
+  },
+  {
+    "id": "congregation-beth-shalom-dunwoody",
+    "name": "Congregation Beth Shalom",
+    "category": "synagogue",
+    "area": "Dunwoody",
+    "website": "https://www.bethshalom.net",
+    "fetch": [
+      { "type": "ical", "url": "https://www.bethshalom.net/events/?ical=1", "verified": true, "note": "WordPress Events Manager ICS (50 events)." },
+      { "type": "csv", "url": "https://cbshalom.shulcloud.com/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~400 rows), which includes services and school." }
+    ],
+    "notes": "Both the WordPress events and the ShulCloud calendar exist. The ICS is the curated events list; ShulCloud is the full calendar."
+  },
+  {
+    "id": "congregation-gesher-ltorah",
+    "name": "Congregation Gesher L'Torah",
+    "category": "synagogue",
+    "area": "Alpharetta",
+    "website": "https://www.wearegesher.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.wearegesher.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~125 rows)." },
+      { "type": "webpage", "url": "https://www.wearegesher.org/events", "verified": false, "note": "ShulCloud events list" }
+    ],
+    "notes": "gltorah.org redirects to wearegesher.org."
+  },
+  {
+    "id": "temple-beth-david-snellville",
+    "name": "Temple Beth David",
+    "category": "synagogue",
+    "area": "Snellville / Gwinnett",
+    "website": "https://www.tbdga.org",
+    "fetch": [
+      { "type": "csv", "url": "https://www.tbdga.org/calendar?view=other&other_view=csv&advanced_mode=Y&date_start=today&has_second_date=Y&date_end=_+months+from+now&date_end_x=6", "verified": true, "note": "ShulCloud CSV export (~55 rows)." }
+    ],
+    "notes": "Small Reform congregation. Don't confuse it with templebethdavid.net (Westwood, MA)."
+  },
+  {
+    "id": "congregation-bnai-israel-jonesboro",
+    "name": "Congregation B'nai Israel",
+    "category": "synagogue",
+    "area": "Jonesboro / Fayetteville (South metro)",
+    "website": "https://bnai-israel.net",
+    "fetch": [
+      { "type": "webpage", "url": "https://bnai-israel.net/#upcoming-events", "verified": true, "note": "URJ WordPress template ('urj_events' post type). Homepage lists upcoming events. ?ical=1 is not supported." }
+    ],
+    "notes": "Reform. Address is 1633 Fayetteville Rd, Jonesboro (listed as Riverdale in older sources)."
+  },
+  {
+    "id": "kehilat-halev",
+    "name": "Kehilat HaLev",
+    "category": "synagogue",
+    "area": "unknown",
+    "website": "",
+    "fetch": [],
+    "notes": "No Atlanta congregation by this name was found; searches only return Kehillat HaLev in Tel Aviv. Probably drop this source."
+  },
+
+  {
+    "id": "weber-school",
+    "name": "The Weber School",
+    "category": "day-school",
+    "area": "Sandy Springs",
+    "website": "https://www.weberschool.org",
+    "fetch": [
+      { "type": "ical", "url": "https://www.weberschool.org/media/calendar/ical/Calendar?showhistory=true", "verified": true, "note": "Blackbaud school calendar ICS (91 events), linked as webcal:// on /calendar. Includes no-school days." },
+      { "type": "webpage", "url": "https://www.weberschool.org/calendar", "verified": true, "note": "HTML calendar" }
+    ],
+    "notes": "Grades 9-12."
+  },
+  {
+    "id": "atlanta-jewish-academy",
+    "name": "Atlanta Jewish Academy (AJA)",
+    "category": "day-school",
+    "area": "Doraville / North DeKalb",
+    "website": "https://www.atljewishacademy.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.atljewishacademy.org/quicklinks/calendar", "verified": true, "note": "Instructions page only. Calendars are Veracross subscriptions generated after parent-portal login." }
+    ],
+    "notes": "No public calendar found. Finalsite calendar IDs 1-14 are empty. Ask AJA for a public Veracross ICS URL or the 2026-27 PDF (maybe under /community/school-publications)."
+  },
+  {
+    "id": "davis-academy",
+    "name": "The Davis Academy",
+    "category": "day-school",
+    "area": "Sandy Springs / Dunwoody",
+    "website": "https://www.davisacademy.org",
+    "fetch": [],
+    "notes": "No public school-year calendar found. /calendar redirects to an admissions page, the sitemap has no calendar, and Finalsite calendar IDs 1-14 are empty. The calendar is likely behind the Veracross portal. Ask the school for a public ICS or PDF."
+  },
+  {
+    "id": "epstein-school",
+    "name": "The Epstein School",
+    "category": "day-school",
+    "area": "Sandy Springs",
+    "website": "https://www.epsatlanta.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.epsatlanta.org/events/", "verified": false, "note": "Events page exists in the sitemap but showed no parseable events. /calendar/ is a stub with a JS calendar and no visible data source." }
+    ],
+    "notes": "epsteinatlanta.org redirects to epsatlanta.org. The calendar is likely in the Veracross parent portal. Ask for a public ICS or PDF."
+  },
+  {
+    "id": "torah-day-school-atlanta",
+    "name": "Torah Day School of Atlanta (TDSA)",
+    "category": "day-school",
+    "area": "Toco Hills",
+    "website": "https://www.torahday.org",
+    "fetch": [
+      { "type": "ical", "url": "https://www.torahday.org/apps/events/ical/?id=0", "verified": true, "note": "Edlio events ICS (~390 events, full school calendar)." }
+    ],
+    "notes": "torahdayschool.org is a dead Wix page; the correct domain is torahday.org. K-8."
+  },
+  {
+    "id": "yeshiva-ohr-yisrael",
+    "name": "Yeshiva Ohr Yisrael",
+    "category": "day-school",
+    "area": "Toco Hills",
+    "website": "https://www.ohryisrael.org",
+    "fetch": [
+      { "type": "webpage", "url": "https://www.ohryisrael.org/shabbos-calendar", "verified": true, "note": "Wix page. Shabbos schedule only, not a school-year calendar." }
+    ],
+    "notes": "Boys' high school. No school-year calendar is published."
+  },
+  {
+    "id": "temima-high-school",
+    "name": "Temima, The Richard & Jean Katz High School for Girls",
+    "category": "day-school",
+    "area": "Toco Hills",
+    "website": "https://www.temima.org",
+    "fetch": [
+      { "type": "ical", "url": "https://calendar.google.com/calendar/ical/c_866mib4ib3q1oc28papaf30q0c%40group.calendar.google.com/public/basic.ics", "verified": true, "note": "Google Calendar embedded on /school-calendar.html (~375 events)." },
+      { "type": "pdf", "url": "https://www.temima.org/uploads/1/1/9/4/119432033/temima_calendar_2026-2027__1_.pdf", "verified": true, "note": "2026-27 school calendar PDF" }
+    ],
+    "notes": "temimaschool.org does not resolve; the correct domain is temima.org (Weebly)."
+  },
+  {
+    "id": "intown-jewish-academy",
+    "name": "Intown Jewish Academy",
+    "category": "day-school",
+    "area": "Intown",
+    "website": "https://www.intownjewishacademy.org",
+    "fetch": [
+      { "type": "json", "url": "https://www.intownjewishacademy.org/events?format=json", "verified": true, "note": "Squarespace events collection JSON with upcoming[] and past[] arrays. Collection-level ?format=ical is not supported." },
+      { "type": "webpage", "url": "https://www.intownjewishacademy.org/events", "verified": true, "note": "Squarespace events page" }
+    ],
+    "notes": "Lists community events, not a school-year calendar. No 2026-27 academic calendar found."
+  },
+  {
+    "id": "chaim-torah-tamim",
+    "name": "Chaim Torah Tamim (unverified)",
+    "category": "day-school",
+    "area": "unknown",
+    "website": "",
+    "fetch": [],
+    "notes": "No Atlanta school by this name was found. Possibly a mix-up with Chaya Mushka Children's House (CMCH), a Chabad Montessori PK-8 in Sandy Springs; its site was not located. Verify or drop."
+  },
+  {
+    "id": "pardes-atlanta",
+    "name": "Pardes (unverified)",
+    "category": "day-school",
+    "area": "unknown",
+    "website": "",
+    "fetch": [],
+    "notes": "No Atlanta Jewish day school named Pardes was found. Pardes Jewish Day School is in Phoenix. Probably drop this source."
+  },
+
+  {
+    "id": "atlanta-public-schools",
+    "name": "Atlanta Public Schools",
+    "category": "public-school",
+    "area": "Intown / City of Atlanta",
+    "website": "https://www.atlantapublicschools.us",
+    "fetch": [
+      { "type": "ical", "url": "https://www.atlantapublicschools.us/fs/calendar-manager/events.ics?calendar_ids[]=4", "verified": true, "note": "Finalsite 'APS District Calendar' (24 events, Oct 2025 to Jun 2027), including Fall, Thanksgiving, December and Spring breaks. 2026-27 only; 2027-28 not yet in the feed." },
+      { "type": "webpage", "url": "https://www.atlantapublicschools.us/about/calendar/yearly-calendar", "verified": true, "note": "Yearly calendar page. No PDF link found and no events displayed." }
+    ],
+    "notes": "No 2027-28 calendar found. Re-poll the ICS, which should extend once approved. Calendar 2 is Family Engagement; 3+ are individual schools."
+  },
+  {
+    "id": "fulton-county-schools",
+    "name": "Fulton County Schools",
+    "category": "public-school",
+    "area": "Sandy Springs / North Fulton / South Fulton",
+    "website": "https://www.fultonschools.org",
+    "fetch": [
+      { "type": "pdf", "url": "https://www.fultonschools.org/fs/resource-manager/view/d262696a-ef2e-4552-bcbf-1f6141f38847", "verified": true, "note": "2026-27 Year at a Glance, TEXT VERSION PDF (best for parsing)" },
+      { "type": "pdf", "url": "https://www.fultonschools.org/fs/resource-manager/view/9a67d349-70db-4745-8448-b41ada26b232", "verified": true, "note": "2026-27 School Calendar (approved 12-19-2024), graphical PDF" },
+      { "type": "pdf", "url": "https://www.fultonschools.org/fs/resource-manager/view/5c3977fe-0bdd-40a8-9665-ba8bcc8105a7", "verified": true, "note": "2027-28 Instructional Calendar (approved 12-18-2025)" },
+      { "type": "webpage", "url": "https://www.fultonschools.org/calendar01", "verified": true, "note": "Calendar landing page with all PDFs" }
+    ],
+    "notes": "The Finalsite ICS endpoint returned no events for calendar_ids 1-40 and 820, so use the PDFs."
+  },
+  {
+    "id": "dekalb-county-school-district",
+    "name": "DeKalb County School District",
+    "category": "public-school",
+    "area": "Toco Hills / Dunwoody / Decatur area",
+    "website": "https://www.dekalbschoolsga.org",
+    "fetch": [
+      { "type": "ical", "url": "https://www.dekalbschoolsga.org/fs/calendar-manager/events.ics?calendar_ids[]=4&calendar_ids[]=8", "verified": true, "note": "Finalsite calendars 'Holidays' (4) and 'Vacation Break' (8): Fall, Thanksgiving, February and Spring breaks through May 2027. Calendar 3 = District Events." },
+      { "type": "pdf", "url": "https://resources.finalsite.net/images/v1782910871/dekalbschoolsgaorg/hjjftsp6h7pf32y1qbmn/12monthCalendar2026-2027v2.pdf", "verified": true, "note": "2026-27 12-month calendar PDF" },
+      { "type": "webpage", "url": "https://www.dekalbschoolsga.org/official-school-calendars", "verified": true, "note": "Official calendars page. The 2026-27 calendar is also posted as a PNG image." }
+    ],
+    "notes": "No 2027-28 calendar found yet. The page also links a 2026-27 religious holidays PDF."
+  },
+  {
+    "id": "city-schools-of-decatur",
+    "name": "City Schools of Decatur",
+    "category": "public-school",
+    "area": "Decatur",
+    "website": "https://www.csdecatur.net",
+    "fetch": [
+      { "type": "pdf", "url": "https://resources.finalsite.net/images/v1747242855/csdecaturnet/sdq3xhwxdmfu3qoj7s5i/Approved2026-2027AcademicCalendar.pdf", "verified": true, "note": "Approved 2026-27 academic calendar" },
+      { "type": "pdf", "url": "https://resources.finalsite.net/images/v1765382320/csdecaturnet/ubu6scdlsgyigrmc2eic/2027-2028Calendar-APPROVED27-28Calendar.pdf", "verified": true, "note": "Approved 2027-28 academic calendar" },
+      { "type": "webpage", "url": "https://www.csdecatur.net/calendar", "verified": true, "note": "District calendars page" }
+    ],
+    "notes": "The Finalsite ICS (calendar 360 and IDs 1-40) returned no events, so use the PDFs."
+  },
+  {
+    "id": "cobb-county-school-district",
+    "name": "Cobb County School District",
+    "category": "public-school",
+    "area": "East Cobb / Cobb",
+    "website": "https://www.cobbk12.org",
+    "fetch": [
+      { "type": "pdf", "url": "https://media.cobbk12.org/media/WWWCobb/medialib/2026-27-year-at-a-glance.59da33112275.pdf", "verified": true, "note": "2026-27 Year at a Glance" },
+      { "type": "pdf", "url": "https://media.cobbk12.org/media/WWWCobb/medialib/2027-2028-year-at-a-glance.67e902113515.pdf", "verified": true, "note": "2027-28 Year at a Glance" },
+      { "type": "webpage", "url": "https://www.cobbk12.org/calendar", "verified": true, "note": "Calendar page. A 2028-29 Year at a Glance is also posted." }
+    ],
+    "notes": "media.cobbk12.org filenames contain hashes and will change if the files are reposted, so re-scrape /calendar for links."
+  },
+  {
+    "id": "gwinnett-county-public-schools",
+    "name": "Gwinnett County Public Schools",
+    "category": "public-school",
+    "area": "Gwinnett",
+    "website": "https://www.gcpsk12.org",
+    "fetch": [
+      { "type": "ical", "url": "https://www.gcpsk12.org/fs/calendar-manager/events.ics?calendar_ids[]=1", "verified": true, "note": "Finalsite 'District Events' (327 events, Jul 2025 to Jun 2027), including Fall Break and systemwide holidays. Also includes heritage-month observances, so filter on 'Holiday' or 'Break'." },
+      { "type": "pdf", "url": "https://www.gcpsk12.org/fs/resource-manager/view/b645b53e-9028-4f72-93f9-edead1c24753", "verified": true, "note": "2026-27 calendar (English)" },
+      { "type": "pdf", "url": "https://www.gcpsk12.org/fs/resource-manager/view/2619693c-ba66-44b3-8acd-d784c9fac86b", "verified": true, "note": "2027-28 calendar (English)" },
+      { "type": "pdf", "url": "https://www.gcpsk12.org/fs/resource-manager/view/d046e8fb-d74c-43d7-a878-85e655821364", "verified": true, "note": "2026-27 Student Grid Calendar" }
+    ],
+    "notes": "Calendar page: https://www.gcpsk12.org/about-us/calendar"
+  },
+  {
+    "id": "marietta-city-schools",
+    "name": "Marietta City Schools",
+    "category": "public-school",
+    "area": "Marietta",
+    "website": "https://www.marietta-city.org",
+    "fetch": [
+      { "type": "pdf", "url": "https://www.marietta-city.org/fs/resource-manager/view/c66353d6-48e4-4359-9463-4aac6baadf89", "verified": true, "note": "2026-27 School Calendar" },
+      { "type": "pdf", "url": "https://www.marietta-city.org/fs/resource-manager/view/6face6f1-40e5-4072-9903-5cef744bb3e3", "verified": true, "note": "2027-28 School Calendar" },
+      { "type": "webpage", "url": "https://www.marietta-city.org/academics/mcs-school-calendars", "verified": true, "note": "Calendars page. A 2028-29 calendar is also posted." }
+    ],
+    "notes": "The Finalsite ICS (calendar 404 and IDs 1-40) returned no events, so use the PDFs."
+  }
+]

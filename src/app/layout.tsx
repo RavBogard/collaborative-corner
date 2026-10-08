@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <footer className="border-t border-line/80 text-xs text-ink-soft">
           <div className="mx-auto max-w-7xl px-4 py-5 flex flex-wrap gap-x-6 gap-y-1">
             <span>A community resource for Atlanta Jewish professionals. All times Eastern (Atlanta).</span>
-            <span>Calendars are gathered automatically each week. Always confirm with the hosting organization.</span>
+            <span>Calendars are gathered automatically from public sources. Always confirm with the hosting organization.</span>
           </div>
         </footer>
       </body>

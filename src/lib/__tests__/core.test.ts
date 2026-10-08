@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { byDay, eventsInRange, fmtTime, heatLevel, timesOverlap } from "../analysis";
+import { byDay, eventsInRange, fmtTime, heatScale, schoolsOut, timesOverlap } from "../analysis";
 import { parseIcs } from "../collect/ical";
 import { parseDatePhrase, parseSheetCsv, rowToRaw } from "../collect/sheet";
 import { horizon } from "../horizon";
@@ -102,6 +102,21 @@ describe("normalize", () => {
   });
 });
 
+describe("school closures", () => {
+  const h = { start: "2026-08-01", end: "2028-07-31" };
+  it("only schools can close, and duplicate breaks merge", () => {
+    const camp = normalize({ id: "jcc", name: "J", category: "institution", area: "", fetch: [] },
+      [{ title: "School's Out Camp", startDate: "2026-10-08", allDay: true, confidence: 1, tags: { schoolClosure: true } }], h);
+    expect(camp[0].tags?.schoolClosure).toBeUndefined();
+    const district = normalize({ id: "g", name: "G", category: "public-school", area: "", fetch: [] },
+      [
+        { title: "Fall Break", startDate: "2026-10-12", endDate: "2026-10-16", allDay: true, confidence: 1, tags: { schoolClosure: true } },
+        { title: "Fall Break (School Holiday)", startDate: "2026-10-12", endDate: "2026-10-16", allDay: true, confidence: 1, tags: { schoolClosure: true } },
+      ], h);
+    expect(district).toHaveLength(1);
+  });
+});
+
 describe("horizon", () => {
   it("covers current + next school year", () => {
     expect(horizon(new Date("2026-10-08T12:00:00"))).toEqual({ start: "2026-08-01", end: "2028-07-31" });
@@ -128,7 +143,10 @@ describe("analysis", () => {
     expect(timesOverlap(a, ev({ allDay: false, startTime: "12:00", endTime: "13:00" }))).toBe(false);
   });
   it("heat levels and time format", () => {
-    expect([0, 1, 2, 4, 9].map(heatLevel)).toEqual([0, 1, 2, 3, 4]);
+    const level = heatScale([1, 1, 2, 2, 3, 3, 4, 5, 6, 10]);
+    expect([0, 1, 3, 5, 10].map(level)).toEqual([0, 1, 2, 3, 4]);
+    expect(heatScale([])(5)).toBe(0);
+    expect(schoolsOut([ev({ sourceId: "a", tags: { schoolClosure: true } }), ev({ sourceId: "a", tags: { schoolClosure: true } }), ev({ sourceId: "b" })])).toBe(1);
     expect(fmtTime("19:30")).toBe("7:30 pm");
     expect(fmtTime("12:00")).toBe("12 pm");
   });

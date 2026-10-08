@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { byDay, dayScore, heatLevel } from "@/lib/analysis";
+import { byDay, dayScore, heatScale, type Heat } from "@/lib/analysis";
 import type { CalEvent, Category } from "@/lib/types";
 import { DayPanel } from "./DayPanel";
 import { Filters, type FilterState } from "./Filters";
@@ -64,8 +64,10 @@ export function CalendarApp({
 
   const days = useMemo(() => byDay(visible), [visible]);
   const heat = useMemo(() => {
-    const m = new Map<string, 0 | 1 | 2 | 3 | 4>();
-    for (const [d, list] of days) m.set(d, heatLevel(dayScore(list, categoryOf)));
+    const scores = new Map([...days].map(([d, list]) => [d, dayScore(list, categoryOf)]));
+    const level = heatScale([...scores.values()]);
+    const m = new Map<string, Heat>();
+    for (const [d, s] of scores) m.set(d, level(s));
     return m;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [days]);
@@ -79,7 +81,7 @@ export function CalendarApp({
         </h1>
         <p className="mt-3 text-ink-soft md:text-lg">
           One calendar for Jewish Atlanta: organizations, synagogues, day schools, public school breaks, and
-          holidays, gathered automatically each week. Warmer days are busier; pick any day to see what&apos;s on it.
+          holidays, gathered automatically from their public calendars. Warmer days are busier; pick any day to see what&apos;s on it.
         </p>
       </section>
 
@@ -123,7 +125,7 @@ function HeatLegend() {
         ))}
       </div>
       <span>Packed</span>
-      <span className="ml-2">Busyness counts major events, school closures, and holidays.</span>
+      <span className="ml-2">Relative to a typical day. Counts major events, school days off, and holidays.</span>
     </div>
   );
 }

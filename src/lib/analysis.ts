@@ -21,13 +21,23 @@ export function byDay(events: CalEvent[]): Map<string, CalEvent[]> {
   return m;
 }
 
-/** 0 (open) … 4 (packed) */
-export function heatLevel(score: number): 0 | 1 | 2 | 3 | 4 {
-  if (score <= 0.3) return 0;
-  if (score < 1.5) return 1;
-  if (score < 3) return 2;
-  if (score < 5) return 3;
-  return 4;
+export type Heat = 0 | 1 | 2 | 3 | 4;
+
+/**
+ * Heat is relative: thresholds come from the distribution of busy days, so the map stays
+ * readable whether a filter shows 50 events or 5,000. Returns score → level.
+ */
+export function heatScale(scores: number[]): (score: number) => Heat {
+  const busy = scores.filter((s) => s > 0.3).sort((a, b) => a - b);
+  if (busy.length === 0) return () => 0;
+  const q = (p: number) => busy[Math.min(busy.length - 1, Math.floor(p * busy.length))];
+  const [t2, t3, t4] = [q(0.4), q(0.7), q(0.9)];
+  return (s) => (s <= 0.3 ? 0 : s >= t4 && t4 > t3 ? 4 : s >= t3 && t3 > t2 ? 3 : s >= t2 && t2 > busy[0] ? 2 : 1);
+}
+
+/** Distinct schools with a closure/early release among the events. */
+export function schoolsOut(events: CalEvent[]): number {
+  return new Set(events.filter((e) => e.tags?.schoolClosure).map((e) => e.sourceId)).size;
 }
 
 export function dayScore(events: CalEvent[], categoryOf: (e: CalEvent) => string): number {

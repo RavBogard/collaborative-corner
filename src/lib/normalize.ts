@@ -13,6 +13,8 @@ export function normalize(
   h: { start: string; end: string },
 ): CalEvent[] {
   const seen = new Set<string>();
+  const closureSpans = new Set<string>();
+  const isSchool = source.category === "public-school" || source.category === "day-school";
   const out: CalEvent[] = [];
   for (const r of raws) {
     const title = r.title?.replace(/\s+/g, " ").trim();
@@ -25,6 +27,14 @@ export function normalize(
     const key = `${source.id}|${title.toLowerCase()}|${r.startDate}|${startTime ?? ""}`;
     if (seen.has(key)) continue;
     seen.add(key);
+
+    // Only schools can be "closed"; the same break often appears in both a feed and a PDF.
+    const tags = cleanTags(isSchool ? r.tags : { ...r.tags, schoolClosure: undefined });
+    if (tags?.schoolClosure) {
+      const span = `${r.startDate}|${endDate}`;
+      if (closureSpans.has(span)) continue;
+      closureSpans.add(span);
+    }
 
     out.push({
       id: createHash("sha1").update(key).digest("hex").slice(0, 12),
@@ -40,7 +50,7 @@ export function normalize(
       description: r.description,
       importance: r.importance ?? defaultImportance(source, title),
       confidence: r.confidence,
-      tags: cleanTags(r.tags),
+      tags,
     });
   }
   return out;

@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Collaborative Corner
 
-## Getting Started
+A community calendar for Atlanta Jewish professionals: check a date against major Jewish
+organizations, synagogues, Jewish day schools, metro public school calendars, Jewish holidays,
+and the community "Collaborative Corner" Google Sheet, all in one place. All times are Eastern (Atlanta).
 
-First, run the development server:
+## Refreshing the data (manual)
+
+Data is gathered by a script on your computer and saved to the site's storage (Vercel Blob).
+The live site picks it up within an hour. No redeploy needed.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run collect
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Takes ~15–25 minutes on the free AI tier (it's throttled to 5 AI requests/minute).
+- Prints a line per source: `✓` ok, `~` partial, `✗` failed (that source keeps its previous events).
+- Retry only the problem sources:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run collect -- $(npx tsx --env-file=.env.local scripts/failed-ids.mts)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Or specific ones: `npm run collect -- the-temple,weber-school`
 
-## Learn More
+Or just ask Claude Code: *"refresh the Collaborative Corner calendar data."*
 
-To learn more about Next.js, take a look at the following resources:
+First-time setup on a new machine: `npm install`, `vercel link`, `vercel env pull .env.local`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Adding or fixing a source
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Edit [`data/sources.json`](data/sources.json). Each source has a `category` and an ordered list of
+`fetch` specs:
 
-## Deploy on Vercel
+| type | what it reads |
+|---|---|
+| `ical` | an iCal/ICS feed (best) |
+| `shulcloud` | ShulCloud calendar CSV export (most Atlanta synagogues) |
+| `tribe` | WordPress "The Events Calendar" REST API |
+| `squarespace` | Squarespace events `?format=json` |
+| `pdf` | a PDF calendar, read by AI (school district calendars) |
+| `webpage` | an events web page, read by AI; used only if nothing above worked |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+All structured specs are combined (e.g. a district's 2026-27 *and* 2027-28 PDFs). Then run
+`npm run collect -- <source-id>` and commit.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## AI models
+
+`.env` sets the models. The Vercel AI Gateway free tier only allows Gemini at 5 requests/minute.
+After adding AI Gateway credits, switch to Claude (better at reading school PDFs) and delete `AI_RPM`.
+
+## Develop
+
+```bash
+npm run dev      # http://localhost:3000 (reads the same Blob data)
+npm test
+```
+
+Pushing to `main` on GitHub deploys to Vercel automatically.

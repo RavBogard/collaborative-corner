@@ -6,7 +6,7 @@ export type Category =
   | "holiday"
   | "community-sheet";
 
-export type FetchType = "ical" | "webpage" | "pdf" | "sheet" | "hebcal";
+export type FetchType = "ical" | "webpage" | "pdf" | "sheet" | "hebcal" | "shulcloud" | "tribe" | "squarespace";
 
 export interface FetchSpec {
   type: FetchType;
@@ -21,7 +21,10 @@ export interface Source {
   area: string;
   website?: string;
   fetch: FetchSpec[];
+  /** shown publicly on the Sources page */
   notes?: string;
+  /** maintainer notes (research findings, quirks); not shown */
+  devNotes?: string;
 }
 
 export type Importance = "major" | "regular";
@@ -61,7 +64,8 @@ export interface SourceStatus {
   lastSuccess?: string;
   eventCount: number;
   error?: string;
-  fetchedVia?: FetchType;
+  /** e.g. "ical+pdf" */
+  fetchedVia?: string;
 }
 
 export interface Dataset {

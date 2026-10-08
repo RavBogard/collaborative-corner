@@ -1,6 +1,6 @@
 "use client";
 
-import { eventsInRange, fmtTime } from "@/lib/analysis";
+import { eventsInRange, fmtTime, schoolsOut } from "@/lib/analysis";
 import { CATEGORY_LABEL, CATEGORY_ORDER } from "@/lib/sources";
 import { LOW_CONFIDENCE, type CalEvent } from "@/lib/types";
 import type { SourceMeta } from "./CalendarApp";
@@ -28,7 +28,7 @@ export function DayPanel({
     c,
     items: list.filter((e) => sourceById.get(e.sourceId)?.category === c),
   })).filter((g) => g.items.length);
-  const closures = list.filter((e) => e.tags?.schoolClosure);
+  const closures = schoolsOut(list);
 
   return (
     <aside className="lg:sticky lg:top-20 self-start rounded-2xl border border-line bg-card shadow-[0_12px_32px_-18px_rgba(80,50,20,0.25)]">
@@ -59,7 +59,7 @@ export function DayPanel({
         <h2 className="font-display text-2xl font-semibold leading-tight">
           {single ? fmtDate(selection.start) : `${fmtDate(selection.start, { month: "short", day: "numeric" })} – ${fmtDate(selection.end, { month: "short", day: "numeric", year: "numeric" })}`}
         </h2>
-        <Verdict count={list.filter((e) => e.importance === "major").length} closures={closures.length} />
+        <Verdict count={list.filter((e) => e.importance === "major" && !e.tags?.schoolClosure).length} closures={closures} />
 
         {grouped.length === 0 ? (
           <p className="mt-4 text-sm text-ink-soft">Nothing on the community calendars for these filters. 🌿</p>
@@ -102,7 +102,7 @@ function Verdict({ count, closures }: { count: number; closures: number }) {
       {tone.t}
       <span className="text-ink-soft font-normal">
         {" "}· {count} major event{count === 1 ? "" : "s"}
-        {closures > 0 && ` · ${closures} school closure${closures === 1 ? "" : "s"}`}
+        {closures > 0 && ` · ${closures} school${closures === 1 ? "" : "s"} off or early release`}
       </span>
     </p>
   );
@@ -135,7 +135,7 @@ function EventRow({ e, source, showDate }: { e: CalEvent; source?: SourceMeta; s
         </div>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1">
-        {e.tags?.schoolClosure && <Badge color="var(--c-public-school)">Students out</Badge>}
+        {e.tags?.schoolClosure && <Badge color="var(--c-public-school)">No school / early release</Badge>}
         {e.tags?.featuredGuest && <Badge color="var(--c-community-sheet)">★ {e.tags.featuredGuest}</Badge>}
         {e.tags?.collaboration && <Badge color="var(--c-day-school)">🤝 Open to collaboration: {e.tags.collaboration}</Badge>}
         {e.confidence < LOW_CONFIDENCE && (

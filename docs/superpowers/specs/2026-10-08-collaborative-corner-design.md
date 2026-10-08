@@ -19,7 +19,7 @@ competing for that date, without anyone maintaining the data by hand.
 | Audience | Open public website, no login |
 | Collection | Fully automatic: ICS feeds + AI extraction (Claude via Vercel AI Gateway) for web pages/PDFs |
 | Event scope | Everything, filterable (importance tag: major / regular) |
-| Refresh | Weekly |
+| Refresh | ~~Weekly cron~~ → **manual** `npm run collect` (Daniel, 2026-10-08: "don't stress the auto update stuff") |
 | Review | Auto-publish; low-confidence events get a "verify" badge linking to source |
 | Hosting | Vercel, free `*.vercel.app` subdomain |
 | Existing sheet | "Collaborative Corner" Google Sheet is both a seed and a live source |
@@ -28,7 +28,7 @@ competing for that date, without anyone maintaining the data by hand.
 | Name | Collaborative Corner |
 | Design | Warm community brand |
 | Horizon | Current school year + next (through summer 2028) |
-| AI cost | ~$1–5/mo on AI Gateway approved |
+| AI cost | ~$1–5/mo on AI Gateway approved; running on free-tier Gemini until credits are added |
 
 ## Architecture
 ```

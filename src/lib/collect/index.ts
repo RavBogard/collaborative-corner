@@ -2,25 +2,46 @@ import { horizon } from "../horizon";
 import { normalize } from "../normalize";
 import { SOURCES } from "../sources";
 import type { CalEvent, Dataset, FetchSpec, Source, SourceStatus } from "../types";
-import { extractFromPage, extractFromPdf, parseDatePhrases } from "./ai-extract";
+import { classifyImportance, extractFromPage, extractFromPdf, parseDatePhrases } from "./ai-extract";
+import { fetchTribe, parseShulCloudCsv, parseSquarespace } from "./feeds";
 import { fetchHebcal } from "./hebcal";
 import { parseIcs } from "./ical";
 import type { RawEvent } from "./raw";
 import { parseDatePhrase, parseSheetCsv, rowToRaw } from "./sheet";
 
-const UA =
-  "Mozilla/5.0 (compatible; CollaborativeCornerBot/1.0; +community calendar for Atlanta Jewish organizations)";
+// Several org sites (ShulCloud, Cloudflare-fronted WordPress) reject non-browser requests.
+const HEADERS = {
+  "user-agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 CollaborativeCorner/1.0",
+  accept: "text/html,application/xhtml+xml,application/xml;q=0.9,text/calendar,application/json,*/*;q=0.8",
+  "accept-language": "en-US,en;q=0.9",
+};
 const FETCH_TIMEOUT_MS = 25_000;
 const CONCURRENCY = 8;
 
-async function fetchWithTimeout(url: string): Promise<Response> {
-  const res = await fetch(url, {
-    headers: { "user-agent": UA, accept: "*/*" },
-    redirect: "follow",
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-  return res;
+/** Some hosts (ShulCloud's WAF) randomly answer 406/429/503; retry those a few times. */
+async function fetchWithTimeout(url: string, tries = 6): Promise<Response> {
+  for (let i = 1; ; i++) {
+    const res = await fetch(url, {
+      headers: HEADERS,
+      redirect: "follow",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (res.ok) return res;
+    if (i >= tries || ![406, 429, 503].includes(res.status)) throw new Error(`HTTP ${res.status} for ${url}`);
+    await res.body?.cancel();
+    await new Promise((r) => setTimeout(r, 750 * i));
+  }
+}
+
+let chain: Promise<unknown> = Promise.resolve();
+function serially<T>(fn: () => Promise<T>): Promise<T> {
+  const run = chain.then(fn, fn);
+  chain = run.then(
+    () => new Promise((r) => setTimeout(r, 1500)),
+    () => new Promise((r) => setTimeout(r, 1500)),
+  );
+  return run;
 }
 
 async function runSpec(source: Source, spec: FetchSpec, from: string, to: string): Promise<RawEvent[]> {
@@ -46,6 +67,16 @@ async function runSpec(source: Source, spec: FetchSpec, from: string, to: string
     }
     case "sheet":
       return collectSheet(spec.url);
+    case "shulcloud": {
+      // ShulCloud's firewall rejects bursts across its sites, so fetch these one at a time.
+      const text = await serially(async () => (await fetchWithTimeout(spec.url, 12)).text());
+      if (!/^﻿?Type,Start/.test(text)) throw new Error("not a ShulCloud CSV");
+      return parseShulCloudCsv(text);
+    }
+    case "tribe":
+      return fetchTribe(spec.url, from, to, fetchWithTimeout);
+    case "squarespace":
+      return parseSquarespace(await (await fetchWithTimeout(spec.url)).json(), spec.url);
   }
 }
 
@@ -77,32 +108,66 @@ async function collectSheet(url: string): Promise<RawEvent[]> {
   return out;
 }
 
+/** Feed types whose events carry no significance signal and get AI-classified. */
+const NEEDS_CLASSIFYING = new Set(["ical", "shulcloud", "tribe", "squarespace"]);
+
+/**
+ * Every structured spec (feeds, PDFs) is collected and combined, e.g. a district's 2026-27 and
+ * 2027-28 PDFs. Plain `webpage` specs are fallbacks, used only when nothing structured worked.
+ */
 async function collectSource(
   source: Source,
   h: { start: string; end: string },
 ): Promise<{ events: CalEvent[]; status: SourceStatus }> {
   const now = new Date().toISOString();
   const errors: string[] = [];
-  for (const spec of source.fetch) {
+  const structured = source.fetch.filter((f) => f.type !== "webpage");
+  const fallbacks = source.fetch.filter((f) => f.type === "webpage");
+  let raws: RawEvent[] = [];
+  const via = new Set<string>();
+
+  const attempt = async (spec: FetchSpec) => {
     try {
-      const raws = await runSpec(source, spec, h.start, h.end);
-      const events = normalize(source, raws, h);
-      // An empty result from a page is suspicious; try the next spec if there is one.
-      if (events.length === 0 && spec !== source.fetch.at(-1)) {
-        errors.push(`${spec.type}: 0 events`);
-        continue;
+      let got = await runSpec(source, spec, h.start, h.end);
+      if (NEEDS_CLASSIFYING.has(spec.type) && source.category !== "holiday") {
+        // Classification is a nice-to-have: on failure, keep the feed and use keyword heuristics.
+        got = await classifyImportance(source.name, source.category, got).catch((e) => {
+          errors.push(`classify: ${(e as Error).message}`.slice(0, 120));
+          return got;
+        });
       }
-      return {
-        events,
-        status: { sourceId: source.id, lastAttempt: now, lastSuccess: now, eventCount: events.length, fetchedVia: spec.type },
-      };
+      if (got.length) {
+        raws = raws.concat(got);
+        via.add(spec.type);
+      } else errors.push(`${spec.type}: 0 events`);
     } catch (e) {
       errors.push(`${spec.type}: ${(e as Error).message}`.slice(0, 200));
     }
+  };
+
+  for (const spec of structured) await attempt(spec);
+  for (const spec of fallbacks) {
+    if (raws.length) break;
+    await attempt(spec);
+  }
+
+  const events = normalize(source, raws, h);
+  if (via.size) {
+    return {
+      events,
+      status: {
+        sourceId: source.id,
+        lastAttempt: now,
+        lastSuccess: now,
+        eventCount: events.length,
+        fetchedVia: [...via].join("+"),
+        error: errors.length ? `partial: ${errors.join(" | ")}` : undefined,
+      },
+    };
   }
   return {
     events: [],
-    status: { sourceId: source.id, lastAttempt: now, eventCount: 0, error: errors.join(" | ") || "no fetch URL configured" },
+    status: { sourceId: source.id, lastAttempt: now, eventCount: 0, error: errors.join(" | ") || "no public calendar found" },
   };
 }
 
