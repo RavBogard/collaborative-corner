@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { byDay, eventsInRange, fmtTime, heatScale, schoolsOut, timesOverlap } from "../analysis";
 import { parseIcs } from "../collect/ical";
 import { parseDatePhrase, parseSheetCsv, rowToRaw } from "../collect/sheet";
+import { mergeDuplicates } from "../dedupe";
 import { horizon } from "../horizon";
 import { normalize } from "../normalize";
 import type { CalEvent, Source } from "../types";
@@ -149,5 +150,44 @@ describe("analysis", () => {
     expect(schoolsOut([ev({ sourceId: "a", tags: { schoolClosure: true } }), ev({ sourceId: "a", tags: { schoolClosure: true } }), ev({ sourceId: "b" })])).toBe(1);
     expect(fmtTime("19:30")).toBe("7:30 pm");
     expect(fmtTime("12:00")).toBe("12 pm");
+  });
+});
+
+describe("mergeDuplicates", () => {
+  const cats: Record<string, "synagogue" | "institution" | "community-sheet" | "day-school"> = {
+    temple: "synagogue", ovs: "synagogue", si: "synagogue", dupree: "institution", sheet: "community-sheet", weber: "day-school", tdsa: "day-school",
+  };
+  const names: Record<string, string> = { temple: "The Temple", ovs: "Or VeShalom", si: "Shearith Israel", dupree: "The Dupree", sheet: "Sheet", weber: "Weber", tdsa: "TDSA" };
+  const ev = (sourceId: string, title: string, p: Partial<CalEvent> = {}): CalEvent => ({
+    id: sourceId + title, sourceId, title, startDate: "2026-10-13", endDate: "2026-10-13", startTime: "19:30", allDay: false, importance: "major", confidence: 1, ...p,
+  });
+  const run = (list: CalEvent[]) => mergeDuplicates(list, (id) => names[id], (e) => cats[e.sourceId]);
+
+  it("merges a talk listed by several shuls", () => {
+    const out = run([
+      ev("ovs", "Hadar Atlanta: Why God Loves Liars (Sometimes)"),
+      ev("temple", "Hadar Atlanta: Why God Loves Liars (Sometimes)"),
+      ev("si", "Intown Rotating Beit Midrash: Why God Loves Liars (Sometimes)"),
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0].alsoListedBy).toHaveLength(2);
+  });
+  it("prefers the org named as host on the sheet, and keeps sheet tags", () => {
+    const out = run([
+      ev("sheet", "Two Struggles, One People: Natan Sharansky", { startTime: "18:00", tags: { host: "The Dupree Conference and Education Center", featuredGuest: "Natan Sharansky" } }),
+      ev("dupree", "Two Struggles, One People: Natan Sharansky on Soviet Jewry", { startTime: "18:00" }),
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0].sourceId).toBe("dupree");
+    expect(out[0].tags?.featuredGuest).toBe("Natan Sharansky");
+  });
+  it("never merges each org's own routine items or school days", () => {
+    expect(run([ev("temple", "Morning Minyan", { startTime: "07:00" }), ev("ovs", "Morning Minyan", { startTime: "07:00" })])).toHaveLength(2);
+    expect(run([ev("temple", "Rosh Chodesh Cheshvan"), ev("ovs", "Rosh Chodesh Cheshvan")])).toHaveLength(2);
+    expect(run([ev("weber", "Grandparents Day Program Celebration"), ev("tdsa", "Grandparents Day Program Celebration")])).toHaveLength(2);
+  });
+  it("respects time and date", () => {
+    expect(run([ev("temple", "Kosher BBQ Festival", { startTime: "12:00" }), ev("ovs", "Kosher BBQ Festival", { startTime: "19:00" })])).toHaveLength(2);
+    expect(run([ev("temple", "Kosher BBQ Festival"), ev("ovs", "Kosher BBQ Festival", { startDate: "2026-10-14", endDate: "2026-10-14" })])).toHaveLength(2);
   });
 });

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { byDay, dayScore, heatScale, type Heat } from "@/lib/analysis";
+import { mergeDuplicates } from "@/lib/dedupe";
 import type { CalEvent, Category } from "@/lib/types";
 import { DayPanel } from "./DayPanel";
 import { Filters, type FilterState } from "./Filters";
@@ -62,7 +63,12 @@ export function CalendarApp({
     [events, filters, sourceById],
   );
 
-  const days = useMemo(() => byDay(visible), [visible]);
+  // The same community event listed by several orgs becomes one card (and counts once).
+  const merged = useMemo(
+    () => mergeDuplicates(visible, (id) => sourceById.get(id)?.name ?? id, (e) => sourceById.get(e.sourceId)?.category ?? "institution"),
+    [visible, sourceById],
+  );
+  const days = useMemo(() => byDay(merged), [merged]);
   const heat = useMemo(() => {
     const scores = new Map([...days].map(([d, list]) => [d, dayScore(list, categoryOf)]));
     const level = heatScale([...scores.values()]);
@@ -106,7 +112,7 @@ export function CalendarApp({
             setSelection(s);
             setMonth(s.start.slice(0, 7));
           }}
-          events={visible}
+          events={merged}
           sourceById={sourceById}
           generatedAt={generatedAt}
         />

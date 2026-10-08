@@ -2,7 +2,8 @@
 
 import { eventsInRange, fmtTime, schoolsOut } from "@/lib/analysis";
 import { CATEGORY_LABEL, CATEGORY_ORDER } from "@/lib/sources";
-import { LOW_CONFIDENCE, type CalEvent } from "@/lib/types";
+import type { MergedEvent } from "@/lib/dedupe";
+import { LOW_CONFIDENCE } from "@/lib/types";
 import type { SourceMeta } from "./CalendarApp";
 
 function fmtDate(d: string, opts: Intl.DateTimeFormatOptions = { weekday: "long", month: "long", day: "numeric" }) {
@@ -18,7 +19,7 @@ export function DayPanel({
 }: {
   selection: { start: string; end: string };
   onSelection: (s: { start: string; end: string }) => void;
-  events: CalEvent[];
+  events: MergedEvent[];
   sourceById: Map<string, SourceMeta>;
   generatedAt: string;
 }) {
@@ -73,7 +74,13 @@ export function DayPanel({
                 </h3>
                 <ul className="space-y-2">
                   {items.map((e) => (
-                    <EventRow key={e.id} e={e} source={sourceById.get(e.sourceId)} showDate={!single} />
+                    <EventRow
+                      key={e.id}
+                      e={e}
+                      source={sourceById.get(e.sourceId)}
+                      showDate={!single}
+                      nameOf={(id) => sourceById.get(id)?.name ?? id}
+                    />
                   ))}
                 </ul>
               </section>
@@ -108,7 +115,17 @@ function Verdict({ count, closures }: { count: number; closures: number }) {
   );
 }
 
-function EventRow({ e, source, showDate }: { e: CalEvent; source?: SourceMeta; showDate: boolean }) {
+function EventRow({
+  e,
+  source,
+  showDate,
+  nameOf,
+}: {
+  e: MergedEvent;
+  source?: SourceMeta;
+  showDate: boolean;
+  nameOf: (id: string) => string;
+}) {
   const time = e.allDay ? "All day" : `${fmtTime(e.startTime)}${e.endTime ? ` – ${fmtTime(e.endTime)}` : ""} ET`;
   const host = e.tags?.host ?? source?.name;
   const multi = e.endDate !== e.startDate;
@@ -132,6 +149,9 @@ function EventRow({ e, source, showDate }: { e: CalEvent; source?: SourceMeta; s
             {host && ` · ${host}`}
           </p>
           {e.location && <p className="mt-0.5 text-xs text-ink-soft truncate">📍 {e.location}</p>}
+          {e.alsoListedBy?.length ? (
+            <p className="mt-0.5 text-xs text-ink-soft">Also listed by {e.alsoListedBy.map(nameOf).join(" · ")}</p>
+          ) : null}
         </div>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1">

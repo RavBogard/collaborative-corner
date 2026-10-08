@@ -189,10 +189,19 @@ async function pool<T, R>(items: T[], n: number, fn: (t: T) => Promise<R>): Prom
  * Collect all (or some) sources and merge into the previous dataset.
  * A source that fails keeps its previous events, so one broken site never empties the calendar.
  */
-export async function collectAll(previous: Dataset, only?: string[]): Promise<Dataset> {
+export async function collectAll(
+  previous: Dataset,
+  only?: string[],
+  onProgress?: (s: SourceStatus, done: number, total: number) => void,
+): Promise<Dataset> {
   const h = horizon();
   const targets = only?.length ? SOURCES.filter((s) => only.includes(s.id)) : SOURCES.filter((s) => s.fetch.length);
-  const results = await pool(targets, CONCURRENCY, (s) => collectSource(s, h));
+  let done = 0;
+  const results = await pool(targets, CONCURRENCY, async (s) => {
+    const r = await collectSource(s, h);
+    onProgress?.(r.status, ++done, targets.length);
+    return r;
+  });
 
   const touched = new Map(targets.map((s, i) => [s.id, results[i]]));
   const events: CalEvent[] = previous.events.filter((e) => {
